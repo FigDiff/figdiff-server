@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+.env
+.vscode/*
+.eslintcache
+.eslintignore
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+coverage
+screenshot
