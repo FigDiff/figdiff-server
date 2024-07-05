@@ -1,8 +1,8 @@
 import { Express } from "express";
-import indexRouter from "../routes/index";
+import figmaDataRouter from "../routes/figmaData";
 
 const routerLoader = async (app: Express) => {
-  app.use("/", indexRouter);
+  app.use("/", figmaDataRouter);
 };
 
 export default routerLoader;
