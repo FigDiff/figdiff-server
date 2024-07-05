@@ -1,0 +1,4 @@
+const FIGMA_FILE_KEY_INDEX: number = 4;
+const FIGMA_NODE_ID_INDEX: number = 5;
+
+export { FIGMA_FILE_KEY_INDEX, FIGMA_NODE_ID_INDEX };
