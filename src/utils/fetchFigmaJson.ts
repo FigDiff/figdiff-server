@@ -3,16 +3,20 @@ const fetchFigmaJson = async (
   nodeId: string,
   accessToken: string,
 ) => {
-  const dataUrl = `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${nodeId}`;
-  const response = await fetch(dataUrl, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  try {
+    const dataUrl = `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${nodeId}`;
+    const response = await fetch(dataUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
 
-  const data = await response.json();
+    const figmaData = await response.json();
 
-  return data;
+    return figmaData;
+  } catch (err) {
+    throw new Error("Failed to fetch figma data");
+  }
 };
 
 export default fetchFigmaJson;
