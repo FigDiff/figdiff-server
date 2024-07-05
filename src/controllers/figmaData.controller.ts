@@ -31,12 +31,21 @@ const figmaDataController = async (
       urlArray[FIGMA_NODE_ID_INDEX].indexOf("&"),
     ).replace("-", ":");
 
+    if (!fileKey) {
+      throw new Error("Invalid Figma URL: missing file ID");
+    } else if (!nodeId) {
+      throw new Error("Invalid Figma URL: missing node ID");
+    }
+
     const screenshotFile = req.file as Express.Multer.File;
     const figmaJson = await fetchFigmaJson(fileKey, nodeId, accessToken);
 
-    await fetchFigmaPng(fileKey, nodeId, accessToken);
+    const figmaPngBuffer = await fetchFigmaPng(fileKey, nodeId, accessToken);
+    const screenshotPngBuffer = screenshotFile.buffer;
 
-    res.status(200).send({ figmaJson, screenshotFile });
+    res
+      .status(200)
+      .send({ figmaJson, screenshotFile, figmaPngBuffer, screenshotPngBuffer });
   } catch (err) {
     next(err);
   }
