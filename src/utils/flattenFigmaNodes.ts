@@ -24,24 +24,29 @@ interface FigmaJson {
 const flattenFigmaNodes = (figmaJson: FigmaJson): FigmaNode[] => {
   const flatNodes: FigmaNode[] = [];
   let isFirstNode = true;
+
   const dfs = (currentNode: FigmaNode) => {
     if (isFirstNode) {
       isFirstNode = false;
       if (currentNode.children) {
         currentNode.children.forEach((child: FigmaNode) => dfs(child));
       }
+
       return;
     }
     const nodeCopy = { ...currentNode };
     delete nodeCopy.children;
     flatNodes.push(nodeCopy);
+
     if (currentNode.children) {
       currentNode.children.forEach((child: FigmaNode) => dfs(child));
     }
   };
+
   Object.values(figmaJson.nodes).forEach((node: FigmaDocument) =>
     dfs(node.document),
   );
+
   return flatNodes;
 };
 
