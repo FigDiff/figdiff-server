@@ -108,6 +108,7 @@ const getDifferenceCoordinates = (
     end,
     blockSize,
   );
+
   const screenShotAverages = getBlockAverageColor(
     screenShotBuff,
     width,
@@ -140,6 +141,7 @@ const getDifferenceCoordinates = (
       const blockY = Math.floor(blockIndex / (width / blockSize));
       const x = blockX * blockSize;
       const y = blockY * blockSize;
+
       diffPixels.push({ x, y });
     }
   }
