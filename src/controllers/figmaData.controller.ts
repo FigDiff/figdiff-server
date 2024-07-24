@@ -108,13 +108,14 @@ const figmaDataController = async (
     ) {
       throw new Error("Images have different dimensions");
     }
+
     const reSizeScreenShotPngArray = new Uint8ClampedArray(
       screenshotImageRaw.data,
     );
     const reSizeFigmaPngArray = new Uint8ClampedArray(figmaImageRaw.data);
 
     const workerPath = path.resolve(__dirname, "worker.js");
-    const numWorkers = 4;
+    const NUM_WORKERS = 4;
 
     const { differentFigmaNodes, diffPixels }: WorkerResult = await new Promise(
       (resolve, reject) => {
@@ -123,10 +124,10 @@ const figmaDataController = async (
           const diffPixelChunks: { x: number; y: number }[][] = [];
 
           const totalPixels = figmaImageInfo.width * figmaImageInfo.height;
-          const chunkSize = Math.ceil(totalPixels / numWorkers);
+          const chunkSize = Math.ceil(totalPixels / NUM_WORKERS);
           let completedWorkers = 0;
 
-          for (let i = 0; i < numWorkers; i++) {
+          for (let i = 0; i < NUM_WORKERS; i++) {
             const start = i * chunkSize;
             const end = Math.min((i + 1) * chunkSize, totalPixels);
 
@@ -148,11 +149,14 @@ const figmaDataController = async (
             worker.on("message", ({ differentFigmaNodes, diffPixels }) => {
               diffNodeChunks.push(differentFigmaNodes);
               diffPixelChunks.push(diffPixels);
+
               completedWorkers++;
-              if (completedWorkers === numWorkers) {
+
+              if (completedWorkers === NUM_WORKERS) {
                 const mergedDiffNodePixel = diffNodeChunks.flat();
                 const mergedDiffPixels = diffPixelChunks.flat();
                 worker.terminate();
+
                 resolve({
                   differentFigmaNodes: mergedDiffNodePixel,
                   diffPixels: mergedDiffPixels,
