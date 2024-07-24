@@ -14,9 +14,11 @@ import {
   FIGMA_NODE_ID_INDEX,
 } from "../constants/figmaUrlConstants";
 
-interface WorkerResult {
-  differentFigmaNodes: Box[];
-  diffPixels: { x: number; y: number }[];
+interface AbsoluteBoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 interface Box {
@@ -26,11 +28,9 @@ interface Box {
   childrenIds?: string[];
 }
 
-interface AbsoluteBoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+interface WorkerResult {
+  differentFigmaNodes: Box[];
+  diffPixels: { x: number; y: number }[];
 }
 
 const figmaDataController = async (
@@ -197,9 +197,23 @@ const figmaDataController = async (
 
     fs.writeFileSync("annotatedImage.png", annotatedImage);
 
+    let newNodeId = "";
+
+    for (let i = 0; i < differentFigmaNodes.length; i++) {
+      newNodeId += `${differentFigmaNodes[i].id},`;
+
+      if (i === differentFigmaNodes.length - 1) {
+        newNodeId = newNodeId.slice(0, -1);
+      }
+    }
+
+    const imagesArray = await fetchFigmaPng(fileKey, newNodeId, accessToken);
+
     res.status(200).send({
       figmaWidth,
       figmaHeight,
+      differentFigmaNodes,
+      imagesArray,
     });
   } catch (err) {
     next(err);
