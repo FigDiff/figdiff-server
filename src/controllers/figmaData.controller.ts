@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+import { Worker, isMainThread } from "worker_threads";
 import sharp from "sharp";
 import puppeteer from "puppeteer";
+import path from "path";
 
 import fetchFigmaJson from "../utils/fetchFigmaJson";
 import fetchFigmaPng from "../utils/fetchFigmaPng";
@@ -10,6 +12,25 @@ import {
   FIGMA_FILE_KEY_INDEX,
   FIGMA_NODE_ID_INDEX,
 } from "../constants/figmaUrlConstants";
+
+interface WorkerResult {
+  differentFigmaNodes: Box[];
+  diffPixels: { x: number; y: number }[];
+}
+
+interface Box {
+  id?: string;
+  absoluteBoundingBox?: AbsoluteBoundingBox;
+  type?: string;
+  childrenIds?: string[];
+}
+
+interface AbsoluteBoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 const figmaDataController = async (
   req: Request,
@@ -64,6 +85,95 @@ const figmaDataController = async (
     const screenshotBuffer = await page.screenshot({ type: "png" });
 
     await browser.close();
+
+    const figmaImageRaw = await sharp(figmaPngBuffer[0])
+      .raw()
+      .toColourspace("srgb")
+      .ensureAlpha()
+      .toBuffer({ resolveWithObject: true });
+
+    const screenshotImageRaw = await sharp(screenshotBuffer)
+      .raw()
+      .toColourspace("srgb")
+      .ensureAlpha()
+      .toBuffer({ resolveWithObject: true });
+
+    const { info: figmaImageInfo } = figmaImageRaw;
+    const { info: screenshotImageInfo } = screenshotImageRaw;
+
+    if (
+      figmaImageInfo.width !== screenshotImageInfo.width ||
+      figmaImageInfo.height !== screenshotImageInfo.height
+    ) {
+      throw new Error("Images have different dimensions");
+    }
+    const reSizeScreenShotPngArray = new Uint8ClampedArray(
+      screenshotImageRaw.data,
+    );
+    const reSizeFigmaPngArray = new Uint8ClampedArray(figmaImageRaw.data);
+
+    const workerPath = path.resolve(__dirname, "worker.js");
+    const numWorkers = 4;
+
+    const { differentFigmaNodes, diffPixels }: WorkerResult = await new Promise(
+      (resolve, reject) => {
+        if (isMainThread) {
+          const diffNodeChunks: Box[][] = [];
+          const diffPixelChunks: { x: number; y: number }[][] = [];
+
+          const totalPixels = figmaImageInfo.width * figmaImageInfo.height;
+          const chunkSize = Math.ceil(totalPixels / numWorkers);
+          let completedWorkers = 0;
+
+          for (let i = 0; i < numWorkers; i++) {
+            const start = i * chunkSize;
+            const end = Math.min((i + 1) * chunkSize, totalPixels);
+
+            const workerData = {
+              path: path.resolve(
+                __dirname,
+                "findDifferentFigmaNodesPixelWorker.ts",
+              ),
+              flattenFigmaData,
+              screenShotBuff: reSizeScreenShotPngArray,
+              figmaBuff: reSizeFigmaPngArray,
+              width: figmaWidth,
+              start,
+              end,
+            };
+
+            const worker = new Worker(workerPath, { workerData });
+
+            worker.on("message", ({ differentFigmaNodes, diffPixels }) => {
+              diffNodeChunks.push(differentFigmaNodes);
+              diffPixelChunks.push(diffPixels);
+              completedWorkers++;
+              if (completedWorkers === numWorkers) {
+                const mergedDiffNodePixel = diffNodeChunks.flat();
+                const mergedDiffPixels = diffPixelChunks.flat();
+                worker.terminate();
+                resolve({
+                  differentFigmaNodes: mergedDiffNodePixel,
+                  diffPixels: mergedDiffPixels,
+                });
+              }
+            });
+
+            worker.on("error", (err) => {
+              console.error(`Worker encountered an error: ${err.message}`);
+              reject(err);
+            });
+
+            worker.on("exit", (code) => {
+              if (code !== 0) {
+                console.error(`Worker stopped with exit code ${code}`);
+                reject(new Error(`Worker stopped with exit code ${code}`));
+              }
+            });
+          }
+        }
+      },
+    );
 
     res.status(200).send({
       figmaWidth,
