@@ -11,5 +11,4 @@ node_modules
 !.elasticbeanstalk/*.global.yml
 
 coverage
-screenshot
-figma.png
+*.png

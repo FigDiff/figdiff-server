@@ -8,9 +8,13 @@ interface diffPixel {
   y: number;
 }
 
-interface Point {
+type Point = { x: number; y: number };
+
+interface AbsoluteBoundingBox {
   x: number;
   y: number;
+  width: number;
+  height: number;
 }
 
 interface FigmaNode {
@@ -28,23 +32,17 @@ interface Box {
   childrenIds?: string[];
 }
 
-interface AbsoluteBoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 const isPointInsideBoundingBox = (
   point: Point,
-  boundingBox: AbsoluteBoundingBox,
+  boundingBox: AbsoluteBoundingBox | undefined,
 ): boolean => {
-  return (
-    point.x >= boundingBox.x &&
-    point.x <= boundingBox.x + boundingBox.width &&
-    point.y >= boundingBox.y &&
-    point.y <= boundingBox.y + boundingBox.height
-  );
+  if (!boundingBox) {
+    return false;
+  }
+  const { x, y } = point;
+  const { x: bx, y: by, width: bw, height: bh } = boundingBox;
+
+  return bx <= x && x <= bx + bw && by <= y && y <= by + bh;
 };
 
 const getBlockAverageColor = (
@@ -156,5 +154,113 @@ const diffPixels = getDifferenceCoordinates(
   start,
   end,
 );
+
+const differentFigmaNodes: Box[] = [];
+
+if (diffPixels.length > 0) {
+  const points: Point[] = diffPixels;
+  const includedBoundingBoxes: Box[] = flattenFigmaData
+    .filter((node: FigmaNode) => node.absoluteBoundingBox !== undefined)
+    .filter((node: FigmaNode) =>
+      points.some((point: Point) =>
+        isPointInsideBoundingBox(point, node.absoluteBoundingBox!),
+      ),
+    )
+    .map((node: FigmaNode) => ({
+      id: node.id,
+      absoluteBoundingBox: node.absoluteBoundingBox!,
+      type: node.type,
+      childrenIds: node.children?.map((child: FigmaNode) => child.id) ?? [],
+    }));
+
+  const skipIds = new Set<string>();
+  const processedBoundingBoxes = new Set<string>();
+  const fullFrameNode = includedBoundingBoxes[0];
+  const roundedBoundingBoxes = new Map();
+
+  includedBoundingBoxes.forEach((box, index) => {
+    if (box.type === "VECTOR") {
+      if (box.id) {
+        skipIds.add(box.id);
+      }
+      return;
+    }
+
+    const roundedX = Math.round((box.absoluteBoundingBox?.x || 0) * 10) / 10;
+    const roundedY = Math.round((box.absoluteBoundingBox?.y || 0) * 10) / 10;
+    const roundedWidth =
+      Math.round((box.absoluteBoundingBox?.width || 0) * 10) / 10;
+    const roundedHeight =
+      Math.round((box.absoluteBoundingBox?.height || 0) * 10) / 10;
+    const roundedKey = [roundedX, roundedY, roundedWidth, roundedHeight].join(
+      ",",
+    );
+
+    if (roundedBoundingBoxes.has(roundedKey)) {
+      if (box.id) {
+        skipIds.add(box.id);
+      }
+      return;
+    }
+
+    roundedBoundingBoxes.set(roundedKey, box.id);
+
+    if (
+      (roundedHeight === fullFrameNode.absoluteBoundingBox?.height ||
+        roundedWidth === fullFrameNode.absoluteBoundingBox?.width) &&
+      box.id
+    ) {
+      skipIds.add(box.id);
+    }
+
+    if (box.type === "FRAME" && box.childrenIds && box.childrenIds.length > 0) {
+      const childrenHeights = box.childrenIds
+        .map(
+          (id) =>
+            includedBoundingBoxes.find((b) => b.id === id)?.absoluteBoundingBox
+              ?.height,
+        )
+        .filter((height) => height !== undefined) as number[];
+
+      const parentHeight = box.absoluteBoundingBox?.height;
+
+      if (childrenHeights.every((height) => height === parentHeight)) {
+        box.id && skipIds.add(box.id);
+      }
+    }
+
+    if (
+      (box.absoluteBoundingBox?.height ===
+        fullFrameNode.absoluteBoundingBox?.height ||
+        box.absoluteBoundingBox?.width ===
+          fullFrameNode.absoluteBoundingBox?.width) &&
+      box.id
+    ) {
+      skipIds.add(box.id);
+    }
+  });
+
+  for (const box of includedBoundingBoxes) {
+    if (!box.id || skipIds.has(box.id)) {
+      console.error(
+        `Skipping image creation for node ${box.id}: it is a child node of a group or the ID is undefined.`,
+      );
+      continue;
+    }
+
+    const boundingBoxKey = `${box.absoluteBoundingBox?.x},${box.absoluteBoundingBox?.y},${box.absoluteBoundingBox?.width},${box.absoluteBoundingBox?.height}`;
+
+    if (processedBoundingBoxes.has(boundingBoxKey)) {
+      continue;
+    }
+
+    try {
+      differentFigmaNodes.push(box);
+      processedBoundingBoxes.add(boundingBoxKey);
+    } catch (error) {
+      console.error(`Failed to process box for node ${box.id}: ${error}`);
+    }
+  }
+}
 
 parentPort?.postMessage({ differentFigmaNodes, diffPixels });
