@@ -68,6 +68,19 @@ const figmaDataController = async (
 
     const flattenFigmaData = flattenFigmaNodes(figmaJson);
 
+    if (
+      figmaJson.nodes[nodeId].document.absoluteBoundingBox.x !== 0 ||
+      figmaJson.nodes[nodeId].document.absoluteBoundingBox.y !== 0
+    ) {
+      const differentX = figmaJson.nodes[nodeId].document.absoluteBoundingBox.x;
+      const differentY = figmaJson.nodes[nodeId].document.absoluteBoundingBox.y;
+
+      for (let i = 0; i < flattenFigmaData.length; i++) {
+        flattenFigmaData[i].absoluteBoundingBox.x -= differentX;
+        flattenFigmaData[i].absoluteBoundingBox.y -= differentY;
+      }
+    }
+
     const figmaImage = sharp(figmaPngBuffer[0]);
     const { width: figmaWidth, height: figmaHeight } =
       await figmaImage.metadata();
