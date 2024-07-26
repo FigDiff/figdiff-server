@@ -5,7 +5,6 @@ async function mongooseLoader() {
     await mongoose.connect(process.env.MONGODB_URI as string, {
       dbName: "FigDiff",
     });
-    console.log("connected to database");
   } catch (error) {
     console.error(error);
   }
