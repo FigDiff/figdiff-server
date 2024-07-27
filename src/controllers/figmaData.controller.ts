@@ -13,6 +13,7 @@ import {
   FIGMA_FILE_KEY_INDEX,
   FIGMA_NODE_ID_INDEX,
 } from "../constants/figmaUrlConstants";
+import { updateProgress } from "../routes/progressBarSSE";
 
 interface AbsoluteBoundingBox {
   x: number;
@@ -49,6 +50,8 @@ const figmaDataController = async (
       res.status(403).send({ message: "Not Authorized" });
       return;
     }
+
+    updateProgress(20, "분석 준비중입니다");
 
     const urlArray = figmaUrl.split("/");
     const fileKey = urlArray[FIGMA_FILE_KEY_INDEX];
@@ -96,6 +99,8 @@ const figmaDataController = async (
 
     await wait(1000);
 
+    updateProgress(30, "분석 준비중입니다");
+
     const screenshotBuffer = await page.screenshot({ type: "png" });
 
     await browser.close();
@@ -130,6 +135,8 @@ const figmaDataController = async (
     const workerPath = path.resolve(__dirname, "worker.js");
     const NUM_WORKERS = 4;
 
+    updateProgress(40, "분석 준비중입니다");
+
     const { differentFigmaNodes, diffPixels }: WorkerResult = await new Promise(
       (resolve, reject) => {
         if (isMainThread) {
@@ -156,6 +163,8 @@ const figmaDataController = async (
               start,
               end,
             };
+
+            updateProgress(50 + i * 10, "다른 좌표를 찾고 있습니다!");
 
             const worker = new Worker(workerPath, { workerData });
 
@@ -210,6 +219,8 @@ const figmaDataController = async (
 
     fs.writeFileSync("annotatedImage.png", annotatedImage);
 
+    updateProgress(90, "다른 좌표를 찾고 있습니다!");
+
     let newNodeId = "";
 
     for (let i = 0; i < differentFigmaNodes.length; i++) {
@@ -221,6 +232,8 @@ const figmaDataController = async (
     }
 
     const imagesArray = await fetchFigmaPng(fileKey, newNodeId, accessToken);
+
+    updateProgress(100, "분석 완료하였습니다!");
 
     res.status(200).send({
       figmaWidth,

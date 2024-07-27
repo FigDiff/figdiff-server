@@ -25,6 +25,7 @@
     "no-param-reassign": "warn",
     "no-await-in-loop": "warn",
     "prettier/prettier": "error",
+    "no-plusplus": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
