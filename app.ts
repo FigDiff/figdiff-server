@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 
+dotenv.config();
+
 import express, { Express } from "express";
 
 import appLoader from "./src/loaders";
-
-dotenv.config();
 
 const app: Express = express();
 
