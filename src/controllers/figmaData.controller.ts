@@ -238,8 +238,9 @@ const figmaDataController = async (
     res.status(200).send({
       figmaWidth,
       figmaHeight,
-      differentFigmaNodes,
       imagesArray,
+      screenshotBuffer,
+      differentFigmaNodes,
     });
   } catch (err) {
     next(err);
