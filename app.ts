@@ -1,5 +1,6 @@
-import express, { Express } from "express";
 import dotenv from "dotenv";
+
+import express, { Express } from "express";
 
 import appLoader from "./src/loaders";
 
