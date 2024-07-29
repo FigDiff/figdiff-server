@@ -1,35 +1,53 @@
 import { Document, Schema, Model, model } from "mongoose";
 
 interface History {
-  imageId: string;
-  imageUrl: string;
-  date: Date;
+  historyName: string;
+  imageUrls: string[];
+  date: string;
 }
 
 interface TabUrl {
-  url: string;
+  tabUrlName: string;
   history: History[];
+}
+
+interface PageName {
+  pageName: string;
+  tabUrls: TabUrl[];
 }
 
 interface User extends Document {
   userId: string;
-  tabUrl: TabUrl[];
+  pageNames: PageName[];
 }
 
 const historySchema: Schema<History> = new Schema({
-  imageId: { type: String, required: true },
-  imageUrl: { type: String, required: true },
-  date: { type: Date, default: Date.now(), required: true },
+  historyName: {
+    type: String,
+    default: new Date().toLocaleString("ko-KR"),
+    required: true,
+  },
+  imageUrls: { type: [String, String], default: [], required: true },
+  date: {
+    type: String,
+    default: new Date().toLocaleString("ko-KR"),
+    required: true,
+  },
 });
 
 const tabUrlSchema: Schema<TabUrl> = new Schema({
-  url: { type: String, required: true },
+  tabUrlName: { type: String, required: true },
   history: { type: [historySchema], default: [], required: true },
+});
+
+const pageNameSchema: Schema<PageName> = new Schema({
+  pageName: { type: String, required: true },
+  tabUrls: { type: [tabUrlSchema], default: [], required: true },
 });
 
 const userSchema: Schema<User> = new Schema({
   userId: { type: String, required: true },
-  tabUrl: { type: [tabUrlSchema], default: [], required: true },
+  pageNames: { type: [pageNameSchema], default: [], required: true },
 });
 
 const User: Model<User> = model<User>("User", userSchema);
