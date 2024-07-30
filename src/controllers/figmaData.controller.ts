@@ -230,13 +230,12 @@ const figmaDataController = async (
 
     const imagesArray = await fetchFigmaPng(fileKey, newNodeId, accessToken);
 
-    updateProgress(100, "분석 완료하였습니다!");
+    updateProgress(100, "분석 완료하였습니다!", annotatedImageBuffer);
 
     res.status(200).send({
       figmaWidth,
       figmaHeight,
       imagesArray,
-      annotatedImageBuffer,
       screenshotBuffer,
       differentFigmaNodes,
     });
