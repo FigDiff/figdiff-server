@@ -3,7 +3,6 @@ import { Worker, isMainThread } from "worker_threads";
 import sharp from "sharp";
 import puppeteer from "puppeteer";
 import path from "path";
-import fs from "fs";
 
 import fetchFigmaJson from "../utils/fetchFigmaJson";
 import fetchFigmaPng from "../utils/fetchFigmaPng";
@@ -206,7 +205,7 @@ const figmaDataController = async (
       '<svg width="5" height="5"><rect width="5" height="5" fill="red" /></svg>',
     );
 
-    const annotatedImage = await sharp(figmaPngBuffer[0])
+    const annotatedImageBuffer = await sharp(figmaPngBuffer[0])
       .composite(
         diffPixels.map((pixel) => ({
           input: square,
@@ -216,8 +215,6 @@ const figmaDataController = async (
       )
       .png()
       .toBuffer();
-
-    fs.writeFileSync("annotatedImage.png", annotatedImage);
 
     updateProgress(90, "다른 좌표를 찾고 있습니다!");
 
@@ -239,6 +236,7 @@ const figmaDataController = async (
       figmaWidth,
       figmaHeight,
       imagesArray,
+      annotatedImageBuffer,
       screenshotBuffer,
       differentFigmaNodes,
     });
