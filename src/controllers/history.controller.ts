@@ -14,6 +14,7 @@ const getUserHistory = async (
 
     if (!userData) {
       res.status(404).send({ result: "Not Found" });
+      return;
     }
 
     res.status(200).send({ result: "ok", userData });
