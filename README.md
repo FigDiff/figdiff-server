@@ -74,14 +74,22 @@ Fig Diff는 바닐라코딩 부트캠프 수료 후, 4명의 동기들이 함께
 3. Figma 로그인을 합니다.
 4. 로그인 후, URL 입력창에 지금 보고있는 페이지와 비교 할 피그마 파일의 Frame 주소를 삽입합니다.
 
-https://github.com/user-attachments/assets/aa28d35d-d9ef-4e3b-8271-77c6125a43f8
+https://github.com/user-attachments/assets/d12cfc0b-1395-4e69-a26b-450e0225235f
 
-1. 비교 완료 후 결과가 표시 됩니다.
+5. 비교 완료 후 결과가 표시 됩니다.
+   - 크롬익스텐션에 웹 사이트와 피그마 디자인의 다른 부분이 빨간색으로 표시 됩니다.
    - 좌측 상단에 웹 및 새로 생성된 피그마 요소에 대한 투명도를 조절할 수 있는 기능이 존재합니다.
+   - 드래그를 할 수 있어 해당 기능의 위치를 움직일 수 있습니다.
    - 위 슬라이더는 웹 투명도를 조절 합니다.
    - 아래 슬라이더는 새로 생성된 피그마 요소들의 투명도를 조절 합니다.
 
-https://github.com/user-attachments/assets/92c35879-150f-4260-a413-1a3d6ea3c68d
+https://github.com/user-attachments/assets/d800533e-e9fb-43ad-bda6-8fc8a678e832
+
+6. 비교 완료 후 저장 버튼을 누릅니다.
+   - 저장 버튼을 누르면 저장 성공시 저장 성공이라고 나옵니다.
+   - Web에서 저장된 결과를 URL 단위로 히스토리 내역을 확인해 볼 수 있습니다.
+
+https://github.com/user-attachments/assets/baf5d73e-7c6e-4fab-8b6a-147f9c74edde
 
 # 🔍 기술 검증
 
