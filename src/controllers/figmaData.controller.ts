@@ -240,6 +240,7 @@ const figmaDataController = async (
       differentFigmaNodes,
     });
   } catch (err) {
+    updateProgress(0, "오류 발생");
     next(err);
   }
 };
