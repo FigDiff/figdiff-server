@@ -8,14 +8,14 @@ FigDiff는 피그마 디자인 파일과 내가 보고있는 웹 화면을 웹�
 
 # 목차
 
-- [🛠️ 기술스택](#%F0%9F%9B%A0%EF%B8%8F-%EA%B8%B0%EC%88%A0%EC%8A%A4%ED%83%9D)
+- [🛠️ 기술스택](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EF%B8%8F%EA%B8%B0%EC%88%A0%EC%8A%A4%ED%83%9D)
   - [Environment](#environment)
   - [Config](#config)
   - [Development](#development)
-- [🙋‍♂️ 프로젝트 소개](#%F0%9F%99%8B%E2%80%8D%E2%99%82%EF%B8%8F-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%86%8C%EA%B0%9C)
-- [💪 동기](#%F0%9F%92%AA-%EB%8F%99%EA%B8%B0)
-- [🕹️ 사용법 및 기능](#%F0%9F%95%B9%EF%B8%8F-%EC%82%AC%EC%9A%A9%EB%B2%95-%EB%B0%8F-%EA%B8%B0%EB%8A%A5)
-- [🔍 기술 검증](#%F0%9F%94%8D-%EA%B8%B0%EC%88%A0-%EA%B2%80%EC%A6%9D)
+- [🙋‍♂️ 프로젝트 소개](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EF%B8%8F%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%86%8C%EA%B0%9C)
+- [💪 동기](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EB%8F%99%EA%B8%B0)
+- [🕹️ 사용법 및 기능](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EF%B8%8F%EC%82%AC%EC%9A%A9%EB%B2%95-%EB%B0%8F-%EA%B8%B0%EB%8A%A5)
+- [🔍 기술 검증](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EA%B8%B0%EC%88%A0-%EA%B2%80%EC%A6%9D)
   - [웹과 피그마를 어떻게 비교할 수 있을까?](#%EC%9B%B9%EA%B3%BC-%ED%94%BC%EA%B7%B8%EB%A7%88%EB%A5%BC-%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%B9%84%EA%B5%90%ED%95%A0-%EC%88%98-%EC%9E%88%EC%9D%84%EA%B9%8C)
     - [1. Figma JSON vs HTML(DOM)](#1-figma-json-vs-htmldom)
       - [문제점](#%EB%AC%B8%EC%A0%9C%EC%A0%90)
@@ -25,7 +25,7 @@ FigDiff는 피그마 디자인 파일과 내가 보고있는 웹 화면을 웹�
       - [실제 피그마 파일 VS 웹 페이지 이미지 Diffing 예시](#%EC%8B%A4%EC%A0%9C-%ED%94%BC%EA%B7%B8%EB%A7%88-%ED%8C%8C%EC%9D%BC-vs-%EC%9B%B9-%ED%8E%98%EC%9D%B4%EC%A7%80-%EC%9D%B4%EB%AF%B8%EC%A7%80-diffing-%EC%98%88%EC%8B%9C)
       - [Figma JSON 의 absoluteBoundingBox 속성](#figma-json-%EC%9D%98-absoluteboundingbox-%EC%86%8D%EC%84%B1)
     - [결론: 이미지로 비교하여 차이나는 지점을 찾는것이 현실적](#%EA%B2%B0%EB%A1%A0-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A1%9C-%EB%B9%84%EA%B5%90%ED%95%98%EC%97%AC-%EC%B0%A8%EC%9D%B4%EB%82%98%EB%8A%94-%EC%A7%80%EC%A0%90%EC%9D%84-%EC%B0%BE%EB%8A%94%EA%B2%83%EC%9D%B4-%ED%98%84%EC%8B%A4%EC%A0%81)
-- [🏔️ 챌린지](#%F0%9F%8F%94%EF%B8%8F-%EC%B1%8C%EB%A6%B0%EC%A7%80)
+- [🏔️ 챌린지](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%EF%B8%8F%EC%B1%8C%EB%A6%B0%EC%A7%80)
   - [1. 일반적으로 두개의 이미지는 어떻게 디핑이 이루어질까?](#1-%EC%9D%BC%EB%B0%98%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%91%90%EA%B0%9C%EC%9D%98-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%94%94%ED%95%91%EC%9D%B4-%EC%9D%B4%EB%A3%A8%EC%96%B4%EC%A7%88%EA%B9%8C)
   - [2. 이미지 디핑 로직 최적화는 어떻게 할까?](#2-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%94%94%ED%95%91-%EB%A1%9C%EC%A7%81-%EC%B5%9C%EC%A0%81%ED%99%94%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%ED%95%A0%EA%B9%8C)
     - [무거운 연산의 디핑 로직](#%EB%AC%B4%EA%B1%B0%EC%9A%B4-%EC%97%B0%EC%82%B0%EC%9D%98-%EB%94%94%ED%95%91-%EB%A1%9C%EC%A7%81)
@@ -41,7 +41,7 @@ FigDiff는 피그마 디자인 파일과 내가 보고있는 웹 화면을 웹�
     - [뷰포트를 피그마 파일과 동일하게 맞추자](#%EB%B7%B0%ED%8F%AC%ED%8A%B8%EB%A5%BC-%ED%94%BC%EA%B7%B8%EB%A7%88-%ED%8C%8C%EC%9D%BC%EA%B3%BC-%EB%8F%99%EC%9D%BC%ED%95%98%EA%B2%8C-%EB%A7%9E%EC%B6%94%EC%9E%90)
     - [iframe을 통해 가상의 뷰포트 만들기](#iframe%EC%9D%84-%ED%86%B5%ED%95%B4-%EA%B0%80%EC%83%81%EC%9D%98-%EB%B7%B0%ED%8F%AC%ED%8A%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0)
   - [4. Base64 vs URL.createObjectURL](#4-base64-vs-urlcreateobjecturl)
-- [⏰ 프로젝트 타임라인](#%E2%8F%B0-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%83%80%EC%9E%84%EB%9D%BC%EC%9D%B8)
+- [⏰ 프로젝트 타임라인](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%83%80%EC%9E%84%EB%9D%BC%EC%9D%B8)
 
 # 🛠️ 기술스택
 
