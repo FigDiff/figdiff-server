@@ -19,7 +19,7 @@ FigDiff는 피그마 디자인 파일과 내가 보고있는 웹 화면을 웹�
   - [웹과 피그마를 어떻게 비교할 수 있을까?](#%EC%9B%B9%EA%B3%BC-%ED%94%BC%EA%B7%B8%EB%A7%88%EB%A5%BC-%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%B9%84%EA%B5%90%ED%95%A0-%EC%88%98-%EC%9E%88%EC%9D%84%EA%B9%8C)
     - [1. Figma JSON vs HTML(DOM)](#1-figma-json-vs-htmldom)
       - [문제점](#%EB%AC%B8%EC%A0%9C%EC%A0%90)
-    - [2. 피그마 JSON → HTML 변환 후 DOM 에서 비교하기](#2-%ED%94%BC%EA%B7%B8%EB%A7%88-json-%E2%86%92-html-%EB%B3%80%ED%99%98-%ED%9B%84-dom-%EC%97%90%EC%84%9C-%EB%B9%84%EA%B5%90%ED%95%98%EA%B8%B0)
+    - [2. 피그마 JSON → HTML 변환 후 DOM 에서 비교하기](#2-피그마-json--html-변환-후-dom-에서-비교하기)
       - [문제점](#%EB%AC%B8%EC%A0%9C%EC%A0%90-1)
     - [3. HTML 과 피그마 파일 모두 ‘이미지’로 변환 후 대조하기 (Pixel Diffing)](#3-html-%EA%B3%BC-%ED%94%BC%EA%B7%B8%EB%A7%88-%ED%8C%8C%EC%9D%BC-%EB%AA%A8%EB%91%90-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A1%9C-%EB%B3%80%ED%99%98-%ED%9B%84-%EB%8C%80%EC%A1%B0%ED%95%98%EA%B8%B0-pixel-diffing)
       - [실제 피그마 파일 VS 웹 페이지 이미지 Diffing 예시](#%EC%8B%A4%EC%A0%9C-%ED%94%BC%EA%B7%B8%EB%A7%88-%ED%8C%8C%EC%9D%BC-vs-%EC%9B%B9-%ED%8E%98%EC%9D%B4%EC%A7%80-%EC%9D%B4%EB%AF%B8%EC%A7%80-diffing-%EC%98%88%EC%8B%9C)
@@ -41,6 +41,7 @@ FigDiff는 피그마 디자인 파일과 내가 보고있는 웹 화면을 웹�
     - [뷰포트를 피그마 파일과 동일하게 맞추자](#%EB%B7%B0%ED%8F%AC%ED%8A%B8%EB%A5%BC-%ED%94%BC%EA%B7%B8%EB%A7%88-%ED%8C%8C%EC%9D%BC%EA%B3%BC-%EB%8F%99%EC%9D%BC%ED%95%98%EA%B2%8C-%EB%A7%9E%EC%B6%94%EC%9E%90)
     - [iframe을 통해 가상의 뷰포트 만들기](#iframe%EC%9D%84-%ED%86%B5%ED%95%B4-%EA%B0%80%EC%83%81%EC%9D%98-%EB%B7%B0%ED%8F%AC%ED%8A%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0)
   - [4. Base64 vs URL.createObjectURL](#4-base64-vs-urlcreateobjecturl)
+    - [결론: URL.createObjectURL 사용](#결론-urlcreateobjecturl-사용)
 - [⏰ 프로젝트 타임라인](https://github.com/FigDiff/figdiff-server?tab=readme-ov-file#%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%83%80%EC%9E%84%EB%9D%BC%EC%9D%B8)
 
 # 🛠️ 기술스택
@@ -506,11 +507,11 @@ for (let i = 0; i < figmaAverages.length; i += 4) {
 
 `URL.createObjectURL`: 이미지 파일을 직접 사용하여 `Blob` 또는 `File` 객체를 생성하고, 이를 참조하는 URL을 생성합니다. 이미지 파일을 base64로 변환할 필요가 없으므로 인코딩 과정에서 걸리는 시간이 없어 객체 URL을 생성하는 것이 매우 빠릅니다. 또한 원본 이미지 파일의 크기를 그대로 유지하기 때문에 추가적인 데이터가 필요하지 않고, 이미지 데이터를 브라우저의 메모리 내에서 직접 참조하므로 base64 인코딩 방식보다 메모리 사용량이 적습니다.
 
-- 요약
+#### 결론: URL.createObjectURL 사용
 
-  - **Base64 인코딩**: 이미지 파일을 문자열로 변환하고, 파일 크기가 증가하며, 변환 과정에 시간이 걸리고, HTML 문서 내에 데이터가 포함되어 메모리 사용량이 증가합니다.
-  - **`URL.createObjectURL`**: 파일을 직접 참조하며, 인코딩 과정이 없고, 원본 크기를 유지하며, 메모리 사용량이 적고, 성능이 더 우수하지만, 사용 후 명시적으로 해제해야 합니다.
-    저희는 웹 페이지에 1회성으로 이미지를 사용하여 렌더링 하였기 때문에 인코딩 과정이 없고, 성능과 메모리 사용 측면에서 유리한 **`URL.createObjectURL`**을 사용하는 것이 더 효율적이라고 판단하였습니다.
+- **Base64 인코딩**: 이미지 파일을 문자열로 변환하고, 파일 크기가 증가하며, 변환 과정에 시간이 걸리고, HTML 문서 내에 데이터가 포함되어 메모리 사용량이 증가합니다.
+- `URL.createObjectURL`: 파일을 직접 참조하며, 인코딩 과정이 없고, 원본 크기를 유지하며, 메모리 사용량이 적고, 성능이 더 우수하지만, 사용 후 명시적으로 해제해야 합니다.
+  저희는 웹 페이지에 1회성으로 이미지를 사용하여 렌더링 하였기 때문에 인코딩 과정이 없고, 성능과 메모리 사용 측면에서 유리한 `URL.createObjectURL` 을 사용하는 것이 더 효율적이라고 판단하였습니다.
 
   </br>
 
